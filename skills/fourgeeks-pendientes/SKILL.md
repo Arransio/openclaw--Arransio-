@@ -1,36 +1,35 @@
 ---
 name: fourgeeks-pendientes
-description: "Decir qué tareas le faltan por completar al estudiante en 4Geeks (PENDING). Responde a: ¿Qué me falta por entregar? ¿Qué ejercicios tengo pendientes?"
+description: Lista las tareas PENDING de 4Geeks agrupadas por tipo. Usa para "¿qué me falta por entregar?" o "¿qué tengo pendiente?".
+metadata: {"openclaw": {"requires": {"env": ["FOURGEEKS_TOKEN"]}}}
 ---
 
-# Obtener trabajo pendiente en 4Geeks
+# Trabajo pendiente en 4Geeks
 
-## Descripción
-
-Skill para identificar específicamente qué tareas están pendientes de completar (PENDING) en la cuenta de 4Geeks del estudiante, desglosadas por tipo.
-
-## Endpoint utilizado
-
-`GET /v1/assignment/user/me/task` — devuelve tareas asignadas al usuario autenticado, filtrables por `task_status`.
+Muestra todo lo que queda por hacer, agrupado por tipo de tarea.
 
 ## Procedimiento
 
-1. Ejecuta una llamada autenticada al endpoint de tareas con filtro `PENDING`.
-   - Host: `gateway`
-   - URL: `https://breathecode.herokuapp.com/v1/assignment/user/me/task?limit=100&task_status=PENDING`
-   - Header: `Authorization: Token $FOURGEEKS_TOKEN`
+1. Lanza la llamada con `exec` (host `gateway`):
 
-2. Procesa la respuesta JSON. Agrupa las tareas pendientes por tipo (`task_type`: LESSON, EXERCISE, PROJECT, QUIZ).
+   ```bash
+   curl -sS \
+     -H "Authorization: Token $FOURGEEKS_TOKEN" \
+     "https://breathecode.herokuapp.com/v1/assignment/user/me/task?limit=100&task_status=PENDING"
+   ```
 
-3. Para cada tarea pendiente muestra:
-   - Título
-   - Tipo
-   - Slug asociado
+2. Agrupa las tareas por `task_type` (EXERCISE, PROJECT, LESSON, QUIZ) y ordénalas por tipo.
 
-4. Presenta un resumen con:
-   - Total de tareas pendientes
-   - Desglose por tipo (X ejercicios, Y proyectos, Z lecciones, W quizzes)
+3. Presenta en el chat una lista numerada con tipo, título e id, más el desglose:
+
+   ```
+   ⏳ 51 pendientes: 35 EXERCISE · 9 PROJECT · 6 LESSON · 1 QUIZ
+
+   1. [EXERCISE] n8n Glossary (id: …)
+   2. [PROJECT] Network Troubleshooting Packet Tracer (id: …)
+   ...
+   ```
 
 ## Resultado esperado
 
-Una visión clara y accionable de todo lo que queda por hacer, ordenada por tipo de tarea, para que el estudiante pueda priorizar su trabajo.
+El número de items listados debe coincidir con el `count` de la respuesta (referencia: 51). Si `count` es 0, informa de que no hay pendientes y termina. Los ids sirven para `entregar-tarea`.
